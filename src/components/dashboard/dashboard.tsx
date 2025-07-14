@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { CreateRoutineDialog } from "./create-routine-dialog"
 import { RoutineList } from "./routine-list"
 import type { Profile, Routine } from "@/lib/types"
-import { LogOut, Plus, User, Calendar, Clock, BookOpen, Search } from "lucide-react" // Import Search icon
-import { Input } from "@/components/ui/input" // Import Input component
+import { LogOut, Plus, User, Calendar, Clock, BookOpen, Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 interface DashboardProps {
   user: {
@@ -23,7 +23,7 @@ export function Dashboard({ user }: DashboardProps) {
   const [routines, setRoutines] = useState<Routine[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("") // New state for search query
+  const [searchQuery, setSearchQuery] = useState("")
   const supabase = createClient()
 
   useEffect(() => {
@@ -141,7 +141,7 @@ export function Dashboard({ user }: DashboardProps) {
           <p className="text-xl md:text-2xl font-medium text-indigo-100 drop-shadow-lg mb-8">
             YOUR DAILY SCHEDULE • SIMPLIFIED • ORGANIZED
           </p>
-          <div className="flex items-center justify-center space-x-8 text-indigo-200">
+          <div className="flex items-center space-x-8 text-indigo-200">
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5" />
               <span className="text-sm font-medium">Time Management</span>
@@ -171,8 +171,7 @@ export function Dashboard({ user }: DashboardProps) {
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-600 z-10" />{" "}
-              {/* Changed color to indigo-600 and added z-10 */}
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-600 z-10" />
               <Input
                 type="text"
                 placeholder="Search by class number..."
@@ -208,6 +207,21 @@ export function Dashboard({ user }: DashboardProps) {
           />
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-indigo-600 py-4 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-indigo-100">
+          &copy; {new Date().getFullYear()} Routine Maker. All rights reserved. Developed by{" "}
+          <a
+            href="https://saif.maysoon.site/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-white transition-colors"
+          >
+            Saif Arabi
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }
