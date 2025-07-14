@@ -91,6 +91,7 @@ export function RoutineList({ routines, isAdmin, onRoutineDeleted, searchQuery }
             <tr>
               <th>Day</th>
               <th>Subject</th>
+              <th>Topic</th>
               <th>Start Time</th>
               <th>End Time</th>
             </tr>
@@ -103,6 +104,7 @@ export function RoutineList({ routines, isAdmin, onRoutineDeleted, searchQuery }
             <tr>
               <td>${entry.day_of_week}</td>
               <td>${entry.subject_name}</td>
+              <td>${entry.topic_name}</td>
               <td>${new Date(`2000-01-01T${entry.start_time}`).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</td>
               <td>${new Date(`2000-01-01T${entry.end_time}`).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</td>
             </tr>
@@ -292,6 +294,7 @@ export function RoutineList({ routines, isAdmin, onRoutineDeleted, searchQuery }
                   <TableRow className="bg-indigo-50">
                     <TableHead className="text-indigo-800 font-semibold">Day</TableHead>
                     <TableHead className="text-indigo-800 font-semibold">Subject</TableHead>
+                    <TableHead className="text-indigo-800 font-semibold">Topic</TableHead>
                     <TableHead className="text-indigo-800 font-semibold">Start Time</TableHead>
                     <TableHead className="text-indigo-800 font-semibold">End Time</TableHead>
                   </TableRow>
@@ -312,6 +315,7 @@ export function RoutineList({ routines, isAdmin, onRoutineDeleted, searchQuery }
                           </Badge>
                         </TableCell>
                         <TableCell className="font-medium text-indigo-800">{entry.subject_name}</TableCell>
+                        <TableCell className="text-indigo-600">{entry.topic_name}</TableCell>
                         <TableCell className="text-indigo-600">
                           {new Date(`2000-01-01T${entry.start_time}`).toLocaleTimeString([], {
                             hour: "numeric",

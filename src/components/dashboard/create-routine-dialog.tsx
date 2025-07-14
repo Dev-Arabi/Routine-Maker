@@ -19,7 +19,18 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { DayOfWeek } from "@/lib/types"
-import { Plus, Trash2, ArrowRight, CalendarDays, Clock, BookOpen, Users, CheckCircle } from "lucide-react"
+import {
+  Plus,
+  Trash2,
+  ArrowRight,
+  CalendarDays,
+  Clock,
+  BookOpen,
+  Users,
+  CheckCircle,
+  Pencil,
+  XCircle,
+} from "lucide-react" // Added XCircle for cancel
 
 interface CreateRoutineDialogProps {
   open: boolean
@@ -32,6 +43,7 @@ interface TimeSlot {
   subject: string
   startTime: string
   endTime: string
+  topic: string
 }
 
 const DAYS: DayOfWeek[] = ["Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]
@@ -42,7 +54,8 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
   const [routineName, setRoutineName] = useState("")
   const [selectedClass, setSelectedClass] = useState<number | null>(null)
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
-  const [currentSlot, setCurrentSlot] = useState<Partial<TimeSlot>>({})
+  const [currentSlot, setCurrentSlot] = useState<Partial<TimeSlot>>({ topic: "N/A" })
+  const [editingSlotIndex, setEditingSlotIndex] = useState<number | null>(null) // New state for editing
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
@@ -51,7 +64,8 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
     setRoutineName("")
     setSelectedClass(null)
     setTimeSlots([])
-    setCurrentSlot({})
+    setCurrentSlot({ topic: "N/A" })
+    setEditingSlotIndex(null) // Reset editing index
   }
 
   const handleClose = () => {
@@ -59,15 +73,48 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
     onOpenChange(false)
   }
 
-  const addTimeSlot = () => {
+  const addOrUpdateTimeSlot = () => {
     if (currentSlot.day && currentSlot.subject && currentSlot.startTime && currentSlot.endTime) {
-      setTimeSlots([...timeSlots, currentSlot as TimeSlot])
-      setCurrentSlot({}) // Clear current slot inputs after adding
+      const newSlot: TimeSlot = {
+        ...currentSlot,
+        topic: currentSlot.topic?.trim() === "" ? "N/A" : currentSlot.topic || "N/A",
+      } as TimeSlot
+
+      if (editingSlotIndex !== null) {
+        // Update existing slot
+        const updatedSlots = [...timeSlots]
+        updatedSlots[editingSlotIndex] = newSlot
+        setTimeSlots(updatedSlots)
+      } else {
+        // Add new slot
+        setTimeSlots([...timeSlots, newSlot])
+      }
+      setCurrentSlot({ topic: "N/A" }) // Clear current slot inputs, reset topic to default
+      setEditingSlotIndex(null) // Exit editing mode
     }
   }
 
   const removeTimeSlot = (index: number) => {
     setTimeSlots(timeSlots.filter((_, i) => i !== index))
+    if (editingSlotIndex === index) {
+      // If the deleted slot was being edited, clear the form
+      setCurrentSlot({ topic: "N/A" })
+      setEditingSlotIndex(null)
+    } else if (editingSlotIndex !== null && index < editingSlotIndex) {
+      // Adjust editing index if a slot before it was deleted
+      setEditingSlotIndex(editingSlotIndex - 1)
+    }
+  }
+
+  const handleEditTimeSlot = (index: number) => {
+    const slotToEdit = timeSlots[index]
+    setCurrentSlot(slotToEdit)
+    setEditingSlotIndex(index)
+  }
+
+  const handleCancelEdit = () => {
+    setCurrentSlot({ topic: "N/A" })
+    setEditingSlotIndex(null)
   }
 
   const handleSubmit = async () => {
@@ -94,6 +141,7 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
         subject_name: slot.subject,
         start_time: slot.startTime,
         end_time: slot.endTime,
+        topic_name: slot.topic,
       }))
 
       const { error: entriesError } = await supabase.from("routine_entries").insert(entries)
@@ -224,7 +272,7 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
                   Add Time Slot
                 </CardTitle>
                 <DialogDescription className="text-indigo-600">
-                  Define the subject, day, and time for each class period.
+                  Define the subject, day, time, and topic for each class period.
                 </DialogDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
@@ -292,14 +340,51 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
                     />
                   </div>
                 </div>
-                <Button
-                  onClick={addTimeSlot}
-                  className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={!currentSlot.day || !currentSlot.subject || !currentSlot.startTime || !currentSlot.endTime}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Time Slot
-                </Button>
+                <div>
+                  <Label htmlFor="topic" className="text-indigo-700 font-medium">
+                    Topic (Optional)
+                  </Label>
+                  <Input
+                    id="topic"
+                    value={currentSlot.topic || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setCurrentSlot({ ...currentSlot, topic: e.target.value })
+                    }
+                    placeholder="e.g., Algebra, Newton's Laws"
+                    className="mt-2 border-indigo-300 focus:border-indigo-500 bg-white/80"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={addOrUpdateTimeSlot}
+                    className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    disabled={
+                      !currentSlot.day || !currentSlot.subject || !currentSlot.startTime || !currentSlot.endTime
+                    }
+                  >
+                    {editingSlotIndex !== null ? (
+                      <>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Update Time Slot
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Time Slot
+                      </>
+                    )}
+                  </Button>
+                  {editingSlotIndex !== null && (
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 bg-transparent"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Cancel Edit
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
@@ -316,7 +401,11 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
                     {timeSlots.map((slot, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-indigo-100/50 rounded-lg border border-indigo-200 shadow-sm hover:shadow-md transition-shadow"
+                        className={`flex items-center justify-between p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow ${
+                          editingSlotIndex === index
+                            ? "bg-indigo-100/70 border-indigo-400 ring-2 ring-indigo-500"
+                            : "bg-gradient-to-r from-indigo-50 to-indigo-100/50 border-indigo-200"
+                        }`}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
                           <Badge
@@ -331,15 +420,34 @@ export function CreateRoutineDialog({ open, onOpenChange, onRoutineCreated }: Cr
                             <Clock className="h-3 w-3" />
                             {slot.startTime} - {slot.endTime}
                           </span>
+                          {slot.topic && slot.topic !== "N/A" && (
+                            <Badge
+                              variant="outline"
+                              className="flex items-center gap-1 border-indigo-300 text-indigo-700 bg-white/80"
+                            >
+                              <BookOpen className="h-3 w-3" />
+                              {slot.topic}
+                            </Badge>
+                          )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeTimeSlot(index)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditTimeSlot(index)}
+                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTimeSlot(index)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

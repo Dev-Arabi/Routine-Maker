@@ -23,6 +23,7 @@ export interface RoutineEntry {
   start_time: string
   end_time: string
   created_at: string
+  topic_name: string // Added topic_name
 }
 
 export type DayOfWeek = "Friday" | "Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday"
