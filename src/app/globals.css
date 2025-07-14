@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 8%; /* Deep charcoal */
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 8%;
+    --primary: 238 56% 70%; /* Indigo 350 (between 300-400) */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --secondary: 238 30% 95%; /* Light indigo tint */
+    --secondary-foreground: 220 15% 8%;
+    --muted: 238 20% 96%; /* Very light indigo */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Medium gray */
+    --accent: 238 40% 92%; /* Light indigo accent */
+    --accent-foreground: 220 15% 8%;
+    --destructive: 0 84.2% 60.2%; /* Red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 238 20% 88%; /* Light indigo border */
+    --input: 238 20% 94%; /* Light indigo input background */
+    --ring: 238 56% 70%; /* Primary color for focus rings */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 15% 8%; /* Deep charcoal - main page background */
+    --foreground: 210 20% 90%; /* Light gray text */
+    --card: 220 15% 15%; /* Noticeably lighter charcoal for cards and dialogs */
+    --card-foreground: 210 20% 90%;
+    --popover: 220 15% 35%; /* Significantly lighter charcoal for dropdowns/tooltips */
+    --popover-foreground: 210 20% 90%;
+    --primary: 238 56% 70%; /* Indigo 350 */
+    --primary-foreground: 220 15% 8%; /* Dark text on primary button */
+    --secondary: 238 20% 25%; /* Dark indigo */
+    --secondary-foreground: 210 20% 90%;
+    --muted: 238 15% 22%; /* Dark indigo muted */
+    --muted-foreground: 210 10% 60%; /* Medium gray for muted text */
+    --accent: 238 20% 25%; /* Dark indigo accent */
+    --accent-foreground: 210 20% 90%;
+    --destructive: 0 70% 40%; /* Muted red */
+    --destructive-foreground: 210 20% 90%;
+    --border: 238 15% 30%; /* Dark indigo border */
+    --input: 238 15% 25%; /* Dark indigo input */
+    --ring: 238 56% 70%; /* Primary color for focus rings */
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
