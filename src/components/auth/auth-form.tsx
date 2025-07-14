@@ -31,7 +31,11 @@ export function AuthForm() {
     })
 
     if (error) {
-      setMessage(error.message)
+      if (error.message === "User already registered") {
+        setMessage("Email Already Exist, please login.")
+      } else {
+        setMessage(error.message)
+      }
     } else {
       setMessage("Check your email for the confirmation link!")
     }
@@ -49,7 +53,13 @@ export function AuthForm() {
     })
 
     if (error) {
-      setMessage(error.message)
+      // Supabase intentionally returns a generic message for security reasons
+      // to prevent user enumeration.
+      if (error.message === "Invalid login credentials") {
+        setMessage("Invalid email or password. Please try again.")
+      } else {
+        setMessage(error.message)
+      }
     }
     setLoading(false)
   }
@@ -77,8 +87,7 @@ export function AuthForm() {
       </div>
 
       <Card className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-md border border-indigo-200 shadow-2xl transition-all duration-500 ease-out hover:shadow-3xl hover:scale-[1.01]">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-6 rounded-t-lg border-b border-indigo-200">
-
+        <CardHeader className="bg-gradient-to-r from-indigo-50 to-indigo-100 m-6 mb-6 p-6 rounded-t-lg border-b border-indigo-200">
           <CardTitle className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-800">
             Routine Maker
           </CardTitle>
