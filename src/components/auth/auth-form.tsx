@@ -18,6 +18,7 @@ export function AuthForm() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [showPassword, setShowPassword] = useState(false) // New state for password visibility
+  const [activeTab, setActiveTab] = useState("signin") // State to manage active tab
   const supabase = createClient()
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,6 +65,23 @@ export function AuthForm() {
     setLoading(false)
   }
 
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage("")
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`, // Redirect to a page where user can set new password
+    })
+
+    if (error) {
+      setMessage(error.message)
+    } else {
+      setMessage("Password reset email sent! Check your inbox.")
+    }
+    setLoading(false)
+  }
+
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-100 overflow-hidden">
       {/* Subtle background pattern */}
@@ -96,7 +114,7 @@ export function AuthForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue="signin" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-indigo-50 p-1 rounded-md shadow-inner">
               <TabsTrigger
                 value="signin"
@@ -156,6 +174,18 @@ export function AuthForm() {
                 >
                   {loading ? "Signing In..." : "Sign In"}
                 </Button>
+                <div className="text-center text-sm">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("forgot-password")
+                      setMessage("") // Clear any previous messages
+                    }}
+                    className="text-indigo-600 hover:underline font-medium"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               </form>
             </TabsContent>
 
@@ -203,6 +233,43 @@ export function AuthForm() {
                 >
                   {loading ? "Signing Up..." : "Sign Up"}
                 </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="forgot-password" className="pt-4">
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-email" className="text-indigo-700 font-medium">
+                    Email
+                  </Label>
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    value={email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                    required
+                    placeholder="Enter your registered email"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01]"
+                  disabled={loading}
+                >
+                  {loading ? "Sending..." : "Reset Password"}
+                </Button>
+                <div className="text-center text-sm">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("signin")
+                      setMessage("") // Clear any previous messages
+                    }}
+                    className="text-indigo-600 hover:underline font-medium"
+                  >
+                    Back to Sign In
+                  </button>
+                </div>
               </form>
             </TabsContent>
           </Tabs>
